@@ -25,14 +25,14 @@ connection.connect(function(err) {
   function start() {
     inquirer
       .prompt({
-        name: "ID of the Product",
+        name: "ID",
         type: "rawlist",
-        message: "Whats you product ID number",
-        choices: ["POST", "BID"]
+        message: "Whats your product ID number",
+        choices: ["1 soap", "2 tissue", "3 socks", "4 juice", "5 soil", "6 strawberries", "7 birthday cards", "8 pizza", "9 boots", "10 computer"]
       })
       .then(function(answer) {
         // based on their answer, either call the bid or the post functions
-        if (answer.postOrBid.toUpperCase() === "POST") {
+        if (answer.ID.toUpperCase() === "1 soap", "2 tissue", "3 socks", "4 juice", "5 soil", "6 strawberries", "7 birthday cards", "8 pizza", "9 boots", "10 computer") {
           postAuction();
         }
         else {
@@ -49,20 +49,21 @@ connection.connect(function(err) {
         {
           name: "item",
           type: "input",
-          message: "What is the item you would like to submit?"
-        },
-        {
-          name: "category",
-          type: "input",
-          message: "What category would you like to place your auction in?"
-        },
-        {
-          name: "startingBid",
-          type: "input",
-          message: "What would you like your starting bid to be?",
+          message: "How many items would like to purchase?"
+        ,
+        // {
+        //   name: "price",
+        //   type: "input",
+        //   message: "How much are you willing to pay?"
+        // },
+        // {
+        //   // name: "stock_quanity",
+        //   // type: "input",
+        //   // message: "We have that item available at this time?",
           validate: function(value) {
             if (isNaN(value) === false) {
               return true;
+              
             }
             return false;
           }
@@ -71,16 +72,16 @@ connection.connect(function(err) {
       .then(function(answer) {
         // when finished prompting, insert a new item into the db with that info
         connection.query(
-          "INSERT INTO auctions SET ?",
+          "INSERT INTO products SET ?",
           {
-            item_name: answer.item,
-            category: answer.category,
-            starting_bid: answer.startingBid,
-            highest_bid: answer.startingBid
+            product_name: answer.item,
+            department_name: answer.category,
+            price: answer.startingBid,
+            stock_quanity: answer.startingBid
           },
           function(err) {
             if (err) throw err;
-            console.log("Your auction was created successfully!");
+            console.log("Your purchase was successfull!");
             // re-prompt the user for if they want to bid or post
             start();
           }
@@ -90,7 +91,7 @@ connection.connect(function(err) {
   
   function bidAuction() {
     // query the database for all items being auctioned
-    connection.query("SELECT * FROM auctions", function(err, results) {
+    connection.query("SELECT * FROM products", function(err, results) {
       if (err) throw err;
       // once you have the items, prompt the user for which they'd like to bid on
       inquirer
@@ -101,7 +102,7 @@ connection.connect(function(err) {
             choices: function() {
               var choiceArray = [];
               for (var i = 0; i < results.length; i++) {
-                choiceArray.push(results[i].item_name);
+                choiceArray.push(results[i].stock_quanity);
               }
               return choiceArray;
             },
@@ -123,13 +124,13 @@ connection.connect(function(err) {
           }
   
           // determine if bid was high enough
-          if (chosenItem.highest_bid < parseInt(answer.bid)) {
+          if (chosenItem.department_name < parseInt(answer.bid)) {
             // bid was high enough, so update db, let the user know, and start over
             connection.query(
-              "UPDATE auctions SET ? WHERE ?",
+              "UPDATE products SET ? WHERE ?",
               [
                 {
-                  highest_bid: answer.bid
+                  stock_quanity: answer.startingBid
                 },
                 {
                   id: chosenItem.id
@@ -137,7 +138,7 @@ connection.connect(function(err) {
               ],
               function(error) {
                 if (error) throw err;
-                console.log("Bid placed successfully!");
+                console.log("Purchase placed successfully!");
                 start();
               }
             );
