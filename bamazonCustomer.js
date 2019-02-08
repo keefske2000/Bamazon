@@ -48,7 +48,7 @@ function buyPrompt () {
 		name: "id",
 		message: 'Enter the ID of the product you want to buy.'
 	}, {
-		name: "quantity",
+		name: "quanity",
 		message: 'What quantity would you like to buy?'
 	}]).then(function(answer) {
 		connection.query('SELECT * FROM `products` WHERE ?', {
@@ -65,13 +65,14 @@ function buyPrompt () {
 				connection.query("UPDATE `products` SET ? WHERE ?", [{
 						stock_quanity: newQuantity
 					}, {
-						id: answer.id
+            id: answer.id
+            
 					}], function(err, res) {
 						if (err) throw err;
 						// Confirmation of complete sale
 						inquirer.prompt([{
 							name: "return",
-							message: 'Purchase complete!\nid: ' + dbName + '\nQuantity: ' + answer.quanity + '\nTotal: $' + total,
+							message: "Purchase complete!\nid: " + dbName + "\nQuantity: " + answer.quanity + "\nTotal: $" + total,
 							type: "list",
 							choices: ["Return"]
 						}]).then(function(answer) {
@@ -82,7 +83,7 @@ function buyPrompt () {
 			} else {
 				inquirer.prompt([{
 					name: "error",
-					message: 'Error - Not enough in stock',
+					message: 'Can not complete this quantity at this time!',
 					type: "list",
 					choices: ["Return"]
 				}]).then(function(answer) {
